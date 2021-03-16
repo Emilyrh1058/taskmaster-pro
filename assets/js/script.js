@@ -6,7 +6,9 @@ var createTask = function (taskText, taskDate, taskList) {
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
     .text(taskDate);
-  var taskP = $("<p>").addClass("m-1").text(taskText);
+  var taskP = $("<p>")
+    .addClass("m-1")
+    .text(taskText);
 
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
@@ -77,13 +79,17 @@ $("#task-form-modal .btn-primary").click(function () {
 
 // task test clicked
 $(".list-group").on("click", "p", function () {
-});
+  var text = $(this)
+    .text()
+    .trim();
+
 
 // replace p element with a new textarea
 var textInput = $("<textarea>").addClass("form-control").val(text);
 $(this).replaceWith(textInput);
  // auto focus new element
 textInput.trigger("focus");
+});
 
 // editable field was un-focused
 $(".list-group").on("blur", "textarea", function () {
