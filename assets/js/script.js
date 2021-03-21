@@ -1,34 +1,16 @@
 var tasks = {};
 
-var auditTask = function(taskEl) {
-  var date = $(taskEl).find("span").text().trim();
-  var time = moment(date, "L").set("hour", 17);
-  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
-  if (moment().isAfter(time)) {
-    $(taskEl).addClass("list-group-item-danger");
-  } else if (Math.abs(moment().diff(time, "days")) <= 2) {
-    $(taskEl).addClass("list-group-item-warning");
-  }
-
-};
-
 var createTask = function(taskText, taskDate, taskList) {
-  // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
   var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(taskDate);
   var taskP = $("<p>").addClass("m-1").text(taskText);
-  // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
-  // check due date
   auditTask(taskLi);
-  // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
 };
 
 var loadTasks = function () {
   tasks = JSON.parse(localStorage.getItem("tasks"));
-
-  // if nothing in localStorage, create a new object to track all task status arrays
   if (!tasks) {
     tasks = {
       toDo: [],
@@ -38,10 +20,7 @@ var loadTasks = function () {
     };
   }
 
-  // loop over object properties
   $.each(tasks, function (list, arr) {
-    console.log(list, arr)
-    // then loop over sub-array
     arr.forEach(function (task) {
       createTask(task.text, task.date, list);
     });
@@ -52,6 +31,17 @@ var saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+var auditTask = function(taskEl) {
+  var date = $(taskEl).find("span").text().trim();
+  var time = moment(date, "L").set("hour", 17);
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  } else if (Math.abs(moment().diff(time, "days")) <= 2) {
+    $(taskEl).addClass("list-group-item-warning");
+  }
+};
+
 $(".card .list-group").sortable({
   connectWith: $(".card .list-group"),
   scroll: false,
@@ -59,15 +49,17 @@ $(".card .list-group").sortable({
   helper: "clone",
   activate: function(event, ui) {
     $(this).addClass("dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag")
   },
   deactivate: function(event, ui) {
     $(this).removeClass("dropover");
+    $(".bottom-trash").removeClass("bottom-trash-drag")
   },
   over: function(event) {
     $(event.target).addClass("dropover-active");
   },
   out: function(event) {
-    $(event-target).removeClass("dropver-active");
+    $(event.target).removeClass("dropver-active");
   },
   update: function() {
     // array to store the task data in
@@ -98,10 +90,6 @@ $(".card .list-group").sortable({
     tasks[arrName] = tempArr;
     saveTasks();
   },
-
-  stop: function(event) {
-    $(this).removeClass("dropover");
-  }
 });
 
   // make the tasks dropable for
@@ -110,13 +98,13 @@ $(".card .list-group").sortable({
     tolerance: "touch",
     drop: function(event, ui) {
       ui.draggable.remove();
-      console.log("drop");
+      $(".bottom-trash").removeClass("bottom-trash-active");
     },
     over: function(event, ui) {
-      console.log("over");
+      $(".bottom-trash").addClass("bottom-trash-active");
     },
     out: function(event, ui) {
-      console.log("out");
+      $(".bottom-trash").removeClass("bottom-trash-active");
     }
   });
 
@@ -199,7 +187,6 @@ var taskP = $("<p>")
 
 // replace textarea with p element
 $(this).replaceWith(taskP);
-
 });
 
 // due date was clicked
@@ -273,9 +260,10 @@ $("#remove-tasks").on("click", function () {
 // load tasks for the first time
 loadTasks();
 
+// audit task due dates every 30 minutes
 setInterval(function() {
-  $(".card .list-group-itm").each(function(index, el) {
-    auditTask(el);
+  $(".card .list-group-itm").each(function() {
+    auditTask($(this));
   });
 }, (1000 * 60) * 30);
 
