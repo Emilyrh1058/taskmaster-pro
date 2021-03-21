@@ -58,16 +58,16 @@ $(".card .list-group").sortable({
   tolerance: "pointer",
   helper: "clone",
   activate: function(event, ui) {
-    console.log(ui);
+    $(this).addClass("dropover");
   },
   deactivate: function(event, ui) {
-    console.log(ui);
+    $(this).removeClass("dropover");
   },
   over: function(event) {
-    console.log(event);
+    $(event.target).addClass("dropover-active");
   },
   out: function(event) {
-    console.log(event);
+    $(event-target).removeClass("dropver-active");
   },
   update: function() {
     // array to store the task data in
@@ -120,6 +120,9 @@ $(".card .list-group").sortable({
     }
   });
 
+$("#modalDueDate").datepicker({
+  minDate: 1
+});
 
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function () {
@@ -270,10 +273,11 @@ $("#remove-tasks").on("click", function () {
 // load tasks for the first time
 loadTasks();
 
-$("#modalDueDate").datepicker({
-  minDate: 1
-});
-
+setInterval(function() {
+  $(".card .list-group-itm").each(function(index, el) {
+    auditTask(el);
+  });
+}, (1000 * 60) * 30);
 
 
 
